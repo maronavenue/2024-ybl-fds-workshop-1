@@ -1,3 +1,4 @@
+import argparse
 import csv
 import datetime
 import json
@@ -29,9 +30,14 @@ def convert_usd_to_target(usd_value: float, target_currency: str) -> float:
 
 
 def main():
+    # Instantiate the parser
+    parser = argparse.ArgumentParser(description='Retrieves a given datapoint from input PSE:TICKER. Supports timeseries data.')
+    parser.add_argument('ticker', type=str, help='PSE Ticker')
+    parser.add_argument('field', type=str, help='Fieldname')
+    parser.add_argument('date', type=str, nargs='?', help='YYYYMMDD date input for timeseries datapoints')
+    args = parser.parse_args()
 
     data = {}
-    
     with open('pse_data_01052024.csv', 'r') as csv_file:
         reader = csv.reader(csv_file)
         for index, row in enumerate(reader):
@@ -68,7 +74,15 @@ def main():
             mcap = price_data * company_shares
             data[key][date]["MCAP"] = mcap
     
-    print(json.dumps(data, sort_keys=True, indent=4))
+    # print(json.dumps(data, sort_keys=True, indent=4))
+
+    result = ''
+    print(args.ticker, args.date, args.field)
+    if args.date:
+        result = data[args.ticker][args.date][args.field]
+    else:
+        result = data[args.ticker][args.field]
+    print(result)
 
 
 if __name__ == "__main__":
